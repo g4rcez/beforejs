@@ -3,6 +3,8 @@ import ReactDOMServer from "react-dom/server";
 import "./App.css";
 import logo from "./logo.svg";
 
+export const PATH = "/";
+
 function App(props: any) {
   const [count, setCount] = React.useState(0);
 

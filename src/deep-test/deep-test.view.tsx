@@ -1,17 +1,21 @@
 import React, { useEffect } from "react";
 import ReactDOMServer from "react-dom/server";
-import "./App.css";
+import "../App.css";
+import logo from "../logo.svg";
+
+export const PATH = "/deep-test/:id";
 
 function App(props: any) {
-  const [count, setCount] = React.useState(0);
-
   useEffect(() => {
     console.log("First Render", props);
-  }, []);
+  }, [props]);
 
   return (
     <div className="App">
-      <header className="App-header">Testing SSR with other routes</header>
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <button className="w-full bg-blue-700">FUCKING AWESOME LEK</button>
+      </header>
     </div>
   );
 }

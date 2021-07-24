@@ -17,8 +17,8 @@ export default defineConfig({
     manifest: true,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, "index.html"),
-        test: resolve(__dirname, "test/index.html"),
+        main: resolve(__dirname, "views/index.html"),
+        test: resolve(__dirname, "views/index.html"),
       },
       output: {
         assetFileNames: "assets/[name][extname]",

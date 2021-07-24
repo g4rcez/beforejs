@@ -1,12 +1,7 @@
 import ReactDOM from "react-dom";
-import App from "./_root.view";
+import App from "./deep-test.view";
 import React from "react";
-
-declare global {
-  interface Window {
-    __SERVER_SIDE_PROPS__: any;
-  }
-}
+import "../index.css";
 
 ReactDOM.hydrate(
   <App {...window.__SERVER_SIDE_PROPS__} />,
