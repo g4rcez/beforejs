@@ -3,38 +3,51 @@ import path from "path";
 import express, { Request, Response } from "express";
 import chokidar from "chokidar";
 import * as ViteJS from "vite";
+import { parse } from "node-html-parser";
 
 const root = process.cwd();
 
-async function createServer() {
-  const app = express();
+const write = (path: string, data: string) =>
+  fs.writeFileSync(path, data, { encoding: "utf-8" });
 
+async function createServer() {
   const vite = await ViteJS.createServer({
     root,
     logLevel: "error",
+    clearScreen: false,
     server: {
       middlewareMode: "ssr",
       cors: true,
-      watch: {
-        usePolling: true,
-        interval: 100,
-      },
+      watch: { usePolling: true, followSymlinks: false },
     },
   });
-  app.use(vite.middlewares);
+
+  const app = express().use(vite.middlewares);
 
   const route = async (file: string, htmlPath: string) => {
     const pathFile = path.resolve(path.join("src", file));
-    const module = await vite.ssrLoadModule(pathFile);
+    let module = await vite.ssrLoadModule(pathFile);
     console.log(`${new Date().toISOString()} - Add ${file} in ${module.PATH}`);
     app.get(module.PATH, async (req: Request, res: Response) => {
       try {
+        module = await vite.ssrLoadModule(pathFile);
         const props = {
+          path: req.path,
           url: req.originalUrl,
           host: req.hostname,
           params: req.params,
           query: req.query,
+          prefetch: null,
+          error: undefined,
         };
+        if (typeof module.prefetch === "function") {
+          try {
+            const response = await module.prefetch(props);
+            props.prefetch = response;
+          } catch (error) {
+            props.error = error;
+          }
+        }
         const template = await vite.transformIndexHtml(
           req.originalUrl,
           fs
@@ -46,10 +59,14 @@ async function createServer() {
               )}</script>`
             )
         );
-        res
-          .status(200)
-          .set({ "Content-Type": "text/html" })
-          .send(template.replace(`<!--app-html-->`, module.render(props)));
+        let html = template.replace(`<!--app-html-->`, module.render(props));
+        if (typeof module.createHead === "function") {
+          const head = parse(module.createHead(props));
+          const htmlNode = parse(html);
+          htmlNode.querySelector("head").appendChild(head);
+          html = htmlNode.toString();
+        }
+        return res.status(200).set({ "Content-Type": "text/html" }).send(html);
       } catch (e) {
         vite.ssrFixStacktrace(e);
         console.log(e.stack);
@@ -60,6 +77,7 @@ async function createServer() {
 
   const watcher = chokidar.watch("src/**/*.view.tsx", {
     persistent: true,
+    cwd: root,
   });
 
   const execWatcher = async (name: string) => {
@@ -70,7 +88,7 @@ async function createServer() {
     const basename = path.basename(name, ".view.tsx");
     const clientTsx = path.resolve(clientFile);
     if (!fs.existsSync(clientTsx)) {
-      fs.writeFileSync(
+      write(
         clientTsx,
         `import ReactDOM from "react-dom";
   import App from "./${basename}.view";
@@ -86,7 +104,7 @@ async function createServer() {
     const viewsFileHtml = path.resolve(path.join("views", `${basename}.html`));
 
     if (!fs.existsSync(viewsFileHtml)) {
-      fs.writeFileSync(viewsFileHtml, templateModel, { encoding: "utf-8" });
+      write(viewsFileHtml, templateModel);
     }
 
     await route(filePath, viewsFileHtml);
