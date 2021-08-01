@@ -1,6 +1,6 @@
-vite build --ssr src/App.page.tsx --outDir dist/server --config vite-server.config.ts; 
+vite build --ssr src/_root.view.tsx --outDir dist/server --config vite-server.config.ts; 
 mkdir -p dist/cache
-cp -r dist/server/App.page.js dist/cache/App.page.js
-vite build --ssr src/Test.page.tsx --outDir dist/server --config vite-server.config.ts
-cp -r dist/server/Test.page.js dist/cache/Test.page.js
-mv dist/cache dist/server
+cp -r dist/server/_root.view.js dist/cache/_root.view.js
+vite build --ssr src/deep-test/deep-test.view.tsx --outDir dist/server --config vite-server.config.ts
+cp -r dist/server/deep-test.view.js dist/cache/deep-test.view.js
+mv dist/cache/* dist/server/

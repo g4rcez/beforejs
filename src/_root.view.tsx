@@ -4,6 +4,9 @@ import "./App.css";
 import logo from "./logo.svg";
 
 export const PATH = "/";
+export const createHead: Ssr.CreateHead = () => `
+    <title>Insert title tag</title>
+  `;
 
 function App(props: any) {
   const [count, setCount] = React.useState(0);
@@ -20,39 +23,20 @@ function App(props: any) {
         <p>
           <button
             type="button"
+            className="bg-black text-white rounded px-4 py-2"
             onClick={() => setCount((count: number) => count + 1)}
           >
             count is: {count}
-          </button>
-        </p>
+ m       </p>
         <p>
           Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
         </p>
       </header>
     </div>
   );
 }
 
-export function render(props: any) {
-  return ReactDOMServer.renderToString(<App {...props} />);
-}
+export const render = (props: any) =>
+  ReactDOMServer.renderToString(<App {...props} />);
 
 export default App;
