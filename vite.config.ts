@@ -36,27 +36,16 @@ export default async () => {
                 input: inputs,
                 output: {
                     assetFileNames: "assets/[name][extname]",
-                    entryFileNames: (a) =>
-                        a.name.endsWith(".js") ? a.name : "[name].js",
-                    chunkFileNames: (a) =>
-                        a.name.endsWith(".js") ? a.name : "[name].js",
+                    entryFileNames: (a) => (a.name.endsWith(".js") ? a.name : "[name].js"),
+                    chunkFileNames: (a) => (a.name.endsWith(".js") ? a.name : "[name].js"),
                     manualChunks(id) {
-                        if (id.endsWith("view.tsx"))
-                            return `pages/${basename(id.toLowerCase()).replace(
-                                /\.tsx/,
-                                ""
-                            )}`;
+                        if (id.endsWith("src/_main.tsx")) {
+                            return `pages/_main`;
+                        }
+                        if (id.endsWith("view.tsx")) return `pages/${basename(id.toLowerCase()).replace(/\.tsx/, "")}`;
                         if (id.includes("node_modules")) {
-                            const module =
-                                /node_modules\/(@?[a-z0-9-]+?[a-z0-9-]+)/.exec(
-                                    id
-                                )?.[1]!;
-                            const path = join(
-                                process.cwd(),
-                                "node_modules",
-                                module,
-                                "package.json"
-                            );
+                            const module = /node_modules\/(@?[a-z0-9-]+?[a-z0-9-]+)/.exec(id)?.[1]!;
+                            const path = join(process.cwd(), "node_modules", module, "package.json");
                             if (fs.existsSync(path)) {
                                 try {
                                     const packageJson = JSON.parse(

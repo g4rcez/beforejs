@@ -6,10 +6,9 @@
     "dev": "ts-node-dev src/server.ts -w",
     "prod": "ts-node-dev src/prod.ts -w",
     "start": "node dist/server/__server.js",
-    "serve": "NODE_ENV=production node server",
     "build": "yarn build:client && yarn build:server",
     "build:client": "vite build --outDir dist/client",
-    "build:server": "ts-node ssr.config.ts"
+    "build:server": "NODE_ENV=production ts-node ssr.config.ts"
   },
   "dependencies": {
     "@types/express": "4.17.13",

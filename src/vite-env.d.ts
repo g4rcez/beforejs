@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
-import { Request, Response } from "express";
+
+import React from "react";
+
 declare global {
     interface Window {
         __SERVER_SIDE_PROPS__: any;
@@ -38,12 +40,12 @@ export declare global {
             Query = StringObject
         > = (
             props: Ssr.Props<Prefetch, Params, Query>
-        ) => Promise<{ props: Prefetch }>;
+        ) => Promise<{ props: Prefetch }> | { props: Prefetch };
 
-        export type CreateHead<
+        export type DynamicHead<
             Prefetch = any,
             Params = StringObject,
             Query = StringObject
-        > = (props: Ssr.Props<Prefetch, Params, Query>) => string;
+        > = React.FC<Ssr.Props<Prefetch, Params, Query>>;
     }
 }

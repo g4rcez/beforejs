@@ -27,8 +27,14 @@ export const getSsrFiles = async () => {
         path.resolve(path.join(root, "src", "**/*.view.tsx")),
         (file: string) => `${path.basename(file, ".view.tsx")}.view`
     );
+    const apis = await getBaseFiles(
+        path.resolve(path.join(root, "src", "**/*.api.ts")),
+        (file: string) => `${path.basename(file, ".api.ts")}.api`
+    );
     return {
+        ...apis,
         ...base,
+        shared: path.resolve(path.join(root, "src", "shared.ts")),
         __server: path.resolve(path.join(root, "src", "prod.ts")),
     };
 };

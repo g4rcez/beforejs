@@ -1,6 +1,6 @@
-import { register } from "../server";
+import { registerApi } from "../shared";
 
-export default register("/test/:id", [
+export default registerApi("/test/:id", [
     {
         handler: (req, res) => res.send(req.params.id),
         method: "get",
