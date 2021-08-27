@@ -22,11 +22,11 @@ const write = (path: string, data: string) =>
 
 export const register = <Path extends string>(
     path: Path,
-    method: Array<"get" | "post" | "put" | "delete" | "patch">,
-    handler: (req: Request<UrlParams<Path>>, res: Response) => any
-) => {
-    return { path, method, handler };
-};
+    handlers: Array<{
+        method: "get" | "post" | "put" | "delete" | "patch";
+        handler: (req: Request<UrlParams<Path>>, res: Response) => any;
+    }>
+) => ({ path, handlers });
 
 type EndpointRegister = ReturnType<typeof register>;
 
@@ -60,7 +60,7 @@ async function createServer() {
                     params: req.params,
                     query: req.query,
                     prefetch: null,
-                    error: undefined,
+                    error: null as any,
                 };
                 if (typeof module.prefetch === "function") {
                     try {
@@ -110,9 +110,10 @@ async function createServer() {
                     .set({ "Content-Type": "text/html" })
                     .send(html);
             } catch (e) {
-                vite.ssrFixStacktrace(e);
-                console.log(e.stack);
-                res.status(500).end(e.stack);
+                const error = e as any;
+                vite.ssrFixStacktrace(error);
+                console.log(error.stack);
+                res.status(500).end(error.stack);
             }
         });
     };
@@ -168,9 +169,9 @@ async function createServer() {
             path.join(root, name)
         )).default;
         const apiRoutes = Router();
-        config.method.forEach((method) => {
-            apiRoutes[method](config.path, config.handler);
-        });
+        config.handlers.map((route) =>
+            apiRoutes[route.method](config.path, route.handler)
+        );
         app.use("/api", apiRoutes);
     };
 
