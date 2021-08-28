@@ -3,8 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "ts-node-dev src/server.ts -w",
-    "prod": "ts-node-dev src/prod.ts -w",
+    "dev": "ts-node-dev src/before/dev-server.ts -w",
+    "prod": "ts-node-dev src/before/prod-server.ts -w",
     "start": "node dist/server/__server.js",
     "build": "yarn build:client && yarn build:server",
     "build:client": "NODE_ENV=production vite build",
@@ -15,7 +15,10 @@
     "@types/node": "^16.3.1",
     "axios": "0.21.1",
     "express": "^4.17.1",
+    "fast-json-stringify": "2.7.9",
+    "find-my-way": "4.3.3",
     "node-html-parser": "4.1.2",
+    "path-to-regexp": "6.2.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0"
   },

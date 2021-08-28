@@ -4,31 +4,23 @@ import logo from "./logo.svg";
 
 export const PATH = "/";
 
-export const DynamicHead: Ssr.DynamicHead = (props) => (
-    <title>Welcome to ${props.host}</title>
-);
+export const DynamicHead: Ssr.DynamicHead = (props) => <title>Welcome to ${props.host}</title>;
 
-export const prefetch: Ssr.Prefetch = () => ({
-    props: { count: 100 },
+export const prefetch: Ssr.Prefetch = async () => ({
+    count: 100,
 });
 
 export default function App(props: Ssr.Props) {
     const [count, setCount] = React.useState(props.prefetch.count);
 
-    useEffect(() => {
-        console.log("First Render", props);
-    }, []);
+    useEffect(() => console.log("First Render", props), []);
 
     return (
         <header className="App-header rounded-lg text-center h-full">
             <img src={logo} className="App-logo" alt="logo" />
             <p>Hello BeforeJS</p>
             <p>
-                <button
-                    type="button"
-                    className="bg-black text-white rounded px-4 py-2"
-                    onClick={() => setCount((count: number) => count + 1)}
-                >
+                <button type="button" className="bg-black text-white rounded px-4 py-2" onClick={() => setCount((count: number) => count + 1)}>
                     count is: {count}
                 </button>
             </p>

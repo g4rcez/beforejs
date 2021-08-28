@@ -1,6 +1,6 @@
-import { registerApi } from "../shared";
+import { Before } from "../before/before";
 
-export default registerApi("/test/:id", [
+export default Before.route("/test/:id", [
     {
         handler: (req, res) => res.send(req.params.id),
         method: "get",

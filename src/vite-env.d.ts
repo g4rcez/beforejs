@@ -22,11 +22,7 @@ export declare global {
             : {};
     }
     export declare namespace Ssr {
-        export type Props<
-            Prefetch = any | null,
-            Params = StringObject,
-            Query = StringObject
-        > = {
+        export type Props<Prefetch = any | null, Params = StringObject, Query = StringObject> = {
             url: string;
             host: string;
             params: Params;
@@ -34,18 +30,10 @@ export declare global {
             prefetch: Prefetch;
         };
 
-        export type Prefetch<
-            Prefetch = any,
-            Params = StringObject,
-            Query = StringObject
-        > = (
+        export type Prefetch<Prefetch = any, Params = StringObject, Query = StringObject> = (
             props: Ssr.Props<Prefetch, Params, Query>
-        ) => Promise<{ props: Prefetch }> | { props: Prefetch };
+        ) => Prefetch | Promise<Prefetch>;
 
-        export type DynamicHead<
-            Prefetch = any,
-            Params = StringObject,
-            Query = StringObject
-        > = React.FC<Ssr.Props<Prefetch, Params, Query>>;
+        export type DynamicHead<Prefetch = any, Params = StringObject, Query = StringObject> = React.FC<Ssr.Props<Prefetch, Params, Query>>;
     }
 }

@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
     "lib": [
       "DOM",
-      "DOM.Iterable",
       "ESNext"
     ],
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
     "alwaysStrict": true,
     "downlevelIteration": true,
+    "emitBOM": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
@@ -21,12 +22,17 @@
     "noImplicitAny": true,
     "outDir": "server",
     "preserveConstEnums": true,
+    "removeComments": true,
     "resolveJsonModule": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "sourceMap": false,
     "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
     "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "ESNext",
   },
   "include": [
     "./src"
