@@ -14,6 +14,13 @@ import { getSsrFiles, root } from "./scripts/get-input-files";
             cors: false,
             force: true,
         },
+        resolve: {
+            alias: {
+                "@api": "src/api",
+                "@components": "src/components",
+                "@pages": "src/pages",
+            },
+        },
         build: {
             ssrManifest: false,
             outDir: "dist/server",

@@ -7,12 +7,18 @@ import { getHtmlFiles } from "./scripts/get-input-files";
 export default async () => {
     const inputs = await getHtmlFiles();
     return defineConfig({
-        plugins: [reactRefresh()],
+        resolve: {
+            alias: {
+                "@api": "src/api",
+                "@components": "src/components",
+                "@pages": "src/pages",
+            },
+        },
+        plugins: [],
         json: { stringify: true },
         build: {
             outDir: "dist/client",
             minify: "terser",
-            assetsInlineLimit: 0,
             manifest: false,
             commonjsOptions: {
                 sourceMap: false,
@@ -55,11 +61,7 @@ export default async () => {
                             const path = join(process.cwd(), "node_modules", module, "package.json");
                             if (fs.existsSync(path)) {
                                 try {
-                                    const packageJson = JSON.parse(
-                                        fs.readFileSync(path, {
-                                            encoding: "utf-8",
-                                        })
-                                    );
+                                    const packageJson = JSON.parse(fs.readFileSync(path, { encoding: "utf-8" }));
                                     const version = packageJson.version;
                                     return `@vendor/${module}_${version}.js`;
                                 } catch (error) {

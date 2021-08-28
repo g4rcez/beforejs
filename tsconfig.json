@@ -33,6 +33,17 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "target": "ESNext",
+    "paths": {
+      "@api": [
+        "./src/api/*"
+      ],
+      "@components": [
+        "./src/components/*"
+      ],
+      "@pages": [
+        "./src/pages/*"
+      ],
+    }
   },
   "include": [
     "./src"

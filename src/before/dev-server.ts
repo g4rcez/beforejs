@@ -88,9 +88,7 @@ ReactDOM.hydrate(
 
     const apiExec = async (name: string) => {
         const config: Before.ApiHandler = require(Before.resolve(name)).default;
-        const apiRoutes = Router();
-        config.handlers.map((route) => apiRoutes[route.method](config.path, route.handler));
-        app.use("/api", apiRoutes);
+        app.use("/api", Before.createApiRouter(config));
     };
 
     ApiWatcher.on("add", apiExec);
@@ -101,5 +99,6 @@ ReactDOM.hydrate(
 
 (async () => {
     const server = await createServer();
-    server.listen(3000, () => console.log("Running :3000"));
+    const controller = server.listen(3000, () => console.log("Running :3000"));
+    process.on("unhandledRejection", (reason, p) => controller.close()).on("uncaughtException", (err) => controller.close());
 })();

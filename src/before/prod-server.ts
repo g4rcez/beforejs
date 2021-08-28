@@ -58,17 +58,16 @@ const createServer = async () => {
 
     const loadApiRoutes = () =>
         new Promise((res, rej) =>
-            glob(path.join("dist", "server", "**", "*.api.js"), (error: Error | null, files: string[]) => {
-                if (error) rej([]);
-                const router = Router();
-                res(
-                    files.map((file) => {
-                        const module: Before.ApiHandler = require(Before.resolve(file)).default;
-                        module.handlers.forEach((route) => router[route.method](module.path, route.handler));
-                    })
-                );
-                app.use("/api", router);
-            })
+            glob(path.join("dist", "server", "**", "*.api.js"), (error: Error | null, files: string[]) =>
+                error
+                    ? rej([])
+                    : res(
+                          files.map((file) => {
+                              const module: Before.ApiHandler = require(Before.resolve(file)).default;
+                              app.use("/api", Before.createApiRouter(module));
+                          })
+                      )
+            )
         );
     await loadFrontendRoutes();
     await loadApiRoutes();

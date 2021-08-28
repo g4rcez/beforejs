@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import parse from "node-html-parser";
 import Path from "path";
 import { createElement, FC } from "react";
@@ -44,8 +44,9 @@ export namespace Before {
         handlers: Array<{
             method: "get" | "post" | "put" | "delete" | "patch";
             handler: (req: Request<UrlParams<Path>>, res: Response) => any;
-        }>
-    ) => ({ path, handlers });
+        }>,
+        middlewares: Array<(req: Request<UrlParams<Path>>, res: Response, next: NextFunction) => Promise<unknown> | unknown> = []
+    ) => ({ path, handlers, middlewares });
 
     export type ApiHandler = ReturnType<typeof route>;
 
@@ -69,6 +70,12 @@ export namespace Before {
             }
         }
         return props;
+    };
+
+    export const createApiRouter = (config: ApiHandler) => {
+        const router = Router();
+        config.handlers.map((route) => router[route.method](config.path, ...config.middlewares, route.handler));
+        return router;
     };
 
     export const render = async (htmlTemplate: string, mainModule: FC<any>, module: Before.Module, props: Props): Promise<string> => {
