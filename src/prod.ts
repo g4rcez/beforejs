@@ -24,6 +24,7 @@ const createServer = async () => {
     );
 
     const mainModule = require(Resolve(path.join(root, "dist", "server", "pages", "_main.js"))).Main;
+    console.log({ mainModule });
 
     const route = (file: string, htmlPath: string) => {
         const indexProd = fs.readFileSync(htmlPath, "utf-8");

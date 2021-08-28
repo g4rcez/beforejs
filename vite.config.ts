@@ -13,10 +13,11 @@ export default async () => {
             outDir: "dist/client",
             minify: "terser",
             assetsInlineLimit: 0,
-            manifest: true,
+            manifest: false,
             commonjsOptions: {
                 sourceMap: false,
             },
+            ssrManifest: false,
             cssCodeSplit: false,
             sourcemap: false,
             terserOptions: {
@@ -38,7 +39,13 @@ export default async () => {
                     assetFileNames: "assets/[name][extname]",
                     entryFileNames: (a) => (a.name.endsWith(".js") ? a.name : "[name].js"),
                     chunkFileNames: (a) => (a.name.endsWith(".js") ? a.name : "[name].js"),
+                    preferConst: true,
+                    sourcemap: false,
+                    strict: true,
                     manualChunks(id) {
+                        if (id.endsWith("html")) {
+                            return `${basename(id)}`;
+                        }
                         if (id.endsWith("src/_main.tsx")) {
                             return `pages/_main`;
                         }

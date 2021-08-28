@@ -15,6 +15,7 @@ import { getSsrFiles, root } from "./scripts/get-input-files";
             force: true,
         },
         build: {
+            ssrManifest: false,
             outDir: "dist/server",
             ssr: true,
             minify: false,
@@ -25,8 +26,11 @@ import { getSsrFiles, root } from "./scripts/get-input-files";
             },
         },
     });
-    Fs.rmSync(path.resolve(path.join(root, "dist/server/views")), {
-        force: true,
-        recursive: true,
-    });
+    const options = { force: true, recursive: true };
+    Fs.rmSync(path.resolve(path.join(root, "dist/server/views")), options);
+    const target = path.join("dist", "client", "views");
+    const oldFolder = path.join("dist", "client", ".cache", "pages");
+    Fs.mkdirSync(target);
+    Fs.renameSync(oldFolder, target);
+    Fs.rmSync(path.join("dist", "client", ".cache"), options);
 })();

@@ -1,6 +1,6 @@
 import React from "react";
 
-export const Main = ({ children }: any) => {
+export default function Main({ children }: any) {
     return (
         <div className="bg-black text-white min-h-screen min-w-max">
             <div className="w-full container mx-auto h-auto">
@@ -9,4 +9,4 @@ export const Main = ({ children }: any) => {
             </div>
         </div>
     );
-};
+}

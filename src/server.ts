@@ -21,6 +21,7 @@ async function createServer() {
         clearScreen: false,
         plugins: [],
         server: {
+            fs: { strict: false },
             middlewareMode: "ssr",
             cors: true,
             watch: { usePolling: true, followSymlinks: true, persistent: true },
@@ -29,13 +30,13 @@ async function createServer() {
 
     const app = express().use(vite.middlewares);
 
-    const route = async (file: string, htmlPath: string) => {
+    const route = async (file: string, htmlPath: string, cachePath: string) => {
         const pathFile = path.resolve(path.join("src", file));
         let module = await vite.ssrLoadModule(pathFile);
         console.log(`${new Date().toISOString()} - Add ${file} in ${module.PATH}`);
         app.get(module.PATH, async (req: Request, res: Response) => {
             try {
-                const MainModule = (await vite.ssrLoadModule(path.resolve(path.join(process.cwd(), "src", "_main.tsx")))).Main;
+                const MainModule = (await vite.ssrLoadModule(path.resolve(path.join(process.cwd(), "src", "_main.tsx")))).default;
                 module = await vite.ssrLoadModule(pathFile);
                 const props = {
                     path: req.path,
@@ -60,7 +61,8 @@ async function createServer() {
 
                 const Dom = parse(html);
                 const Body = Dom.querySelector("body");
-                Body.appendChild(parse(`<script type="module" src="/${replaceViewToClient(htmlPath)}"></script>`));
+                console.log({ htmlPath, cachePath });
+                Body.appendChild(parse(`<script type="module" src="/${cachePath}"></script>`));
                 const DomHeader = Dom.querySelector("head");
                 DomHeader.appendChild(parse(`<script id="__SERVER_SIDE_PROPS__" type="application/ld+json">${JSON.stringify(props)}</script>`));
                 if (module.DynamicHead) {
@@ -77,7 +79,7 @@ async function createServer() {
             } catch (e) {
                 const error = e as any;
                 vite.ssrFixStacktrace(error);
-                console.log(error.stack);
+                console.error(error.stack);
                 res.status(500).end(error.stack);
             }
         });
@@ -89,23 +91,28 @@ async function createServer() {
     });
 
     const frontendExec = async (name: string) => {
-        const clientFile = replaceViewToClient(name);
-
         const basename = path.basename(name, ".view.tsx");
-        const clientTsx = path.resolve(clientFile);
-        if (!fs.existsSync(clientTsx)) {
+        const cachePath = path.join(".cache", "pages", `${basename}.client.tsx`);
+        if (!fs.existsSync(cachePath)) {
             write(
-                clientTsx,
+                cachePath,
                 `import ReactDOM from "react-dom";
-  import App from "./${basename}.view";
-  import React from "react";
-  ReactDOM.hydrate(<App {...window.__SERVER_SIDE_PROPS__} />,document.getElementById("app"));`
+import React from "react";
+import App from "../../${name}";
+import Main from "../../src/_main";
+
+ReactDOM.hydrate(
+    <Main>
+        <App {...JSON.parse((window as any).__SERVER_SIDE_PROPS__.innerText)} />
+    </Main>,
+    document.getElementById("app")
+);`
             );
         }
 
         const filePath = name.replace(/^src\//, "");
 
-        await route(filePath, name);
+        await route(filePath, name, cachePath);
     };
 
     frontendWatcher.on("add", frontendExec);

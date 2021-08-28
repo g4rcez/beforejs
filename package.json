@@ -7,7 +7,7 @@
     "prod": "ts-node-dev src/prod.ts -w",
     "start": "node dist/server/__server.js",
     "build": "yarn build:client && yarn build:server",
-    "build:client": "vite build --outDir dist/client",
+    "build:client": "NODE_ENV=production vite build",
     "build:server": "NODE_ENV=production ts-node ssr.config.ts"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@types/glob": "7.1.4",
+    "@types/html-minifier": "4.0.1",
     "@types/json-server": "0.14.4",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
@@ -28,6 +29,7 @@
     "autoprefixer": "10.3.1",
     "chokidar": "3.5.2",
     "glob": "7.1.7",
+    "html-minifier": "4.0.0",
     "json-server": "0.16.3",
     "postcss": "8.3.6",
     "tailwindcss": "2.2.7",
