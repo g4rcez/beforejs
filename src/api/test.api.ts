@@ -1,6 +1,6 @@
-import { Before } from "../before";
+import { ApiBefore } from "../before";
 
-export default Before.route(
+export default ApiBefore.route(
     "/test/:id",
     [
         {

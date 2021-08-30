@@ -16,14 +16,8 @@ export default async () => {
         },
         mode: process.env.NODE_ENV ?? "development",
         plugins: [],
-        json: { stringify: true },
-        server: {
-            middlewareMode: "ssr",
-            fs: { strict: true, allow: [] },
-        },
         build: {
             outDir: "dist/client",
-            minify: "terser",
             manifest: false,
             commonjsOptions: {
                 sourceMap: false,
@@ -31,28 +25,9 @@ export default async () => {
             ssrManifest: false,
             cssCodeSplit: false,
             sourcemap: false,
-            terserOptions: {
-                keep_classnames: true,
-                sourceMap: false,
-                compress: true,
-                ie8: false,
-                safari10: false,
-                keep_fnames: true,
-                format: {
-                    ascii_only: false,
-                    beautify: false,
-                    comments: false,
-                    ie8: false,
-                    safari10: false,
-                    shorthand: true,
-                },
-            },
             rollupOptions: {
                 input: inputs,
-                treeshake: true,
-                shimMissingExports: true,
                 output: {
-                    interop: "esModule",
                     assetFileNames: "assets/[name][extname]",
                     entryFileNames: (a) => (a.name.endsWith(".js") ? a.name : "[name].js"),
                     chunkFileNames: (a) => (a.name.endsWith(".js") ? a.name : "[name].js"),

@@ -37,6 +37,7 @@ export const getSsrFiles = async () => {
         ...apis,
         ...base,
         __before: path.resolve(path.join(root, "src", "before", "index.ts")),
+        __ssr: path.resolve(path.join(root, "src", "before", "ssr.ts")),
         __server: path.resolve(path.join(root, "src", "before", "prod-server.ts")),
     };
 };

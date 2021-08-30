@@ -3,10 +3,10 @@ import fs from "fs";
 import { glob } from "glob";
 import path from "path";
 import staticServer from "serve-static";
-import { Before } from ".";
+import { ApiBefore } from ".";
 
-const createServer = async (basePath = Before.BASE_PATH) => {
-    const staticMiddleware = staticServer(Before.resolve("dist", "client"), {
+const createServer = async (basePath = ApiBefore.BASE_PATH) => {
+    const staticMiddleware = staticServer(ApiBefore.resolve("dist", "client"), {
         etag: true,
         index: false,
         maxAge: 10800,
@@ -17,19 +17,19 @@ const createServer = async (basePath = Before.BASE_PATH) => {
     const app = express().disable("x-powered-by");
     app.use(basePath, (req, res, next) => staticMiddleware(req, res, next));
 
-    const mainModule = require(Before.resolve("dist", "server", "pages", "_main.js")).Main;
+    const mainModule = require(ApiBefore.resolve("dist", "server", "pages", "_main.js")).Main;
 
     const route = (file: string, htmlPath: string) => {
         const indexProd = fs.readFileSync(htmlPath, "utf-8");
 
-        const module: Before.Module = require(Before.join("dist", "server", file));
+        const module: ApiBefore.Module = require(ApiBefore.join("dist", "server", file));
 
         return {
             path: module.PATH,
             render: async (req: Request, res: Response) => {
                 try {
-                    const props = await Before.createComponentProps(req, module);
-                    const html = await Before.render(indexProd, mainModule, module, props);
+                    const props = await ApiBefore.createComponentProps(req, module);
+                    const html = await ApiBefore.render(indexProd, mainModule, module, props);
                     return res.status(200).set({ "Content-Type": "text/html" }).send(html.toString());
                 } catch (error) {
                     const e = error as any;
@@ -49,7 +49,7 @@ const createServer = async (basePath = Before.BASE_PATH) => {
                           files.forEach((file) => {
                               const config = route(`${path.basename(file, ".html")}.view`, file);
                               console.log({ path: config.path });
-                              app.get(Before.urls(basePath, config.path), config.render);
+                              app.get(ApiBefore.urls(basePath, config.path), config.render);
                           })
                       )
             )
@@ -62,8 +62,8 @@ const createServer = async (basePath = Before.BASE_PATH) => {
                     ? rej([])
                     : res(
                           files.map((file) => {
-                              const module: Before.ApiHandler = require(Before.resolve(file)).default;
-                              Before.createApiRouter(module, app, basePath);
+                              const module: ApiBefore.ApiHandler = require(ApiBefore.resolve(file)).default;
+                              ApiBefore.createApiRouter(module, app, basePath);
                           })
                       )
             )

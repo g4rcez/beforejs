@@ -4,7 +4,7 @@ import fs from "fs";
 import { parse } from "node-html-parser";
 import path from "path";
 import * as ViteJS from "vite";
-import { Before } from ".";
+import { ApiBefore } from ".";
 
 const root = process.cwd();
 
@@ -34,22 +34,22 @@ async function createServer() {
     const route = async (file: string, cachePath: string) => {
         try {
             const pathFile = path.resolve(path.join("src", file));
-            let module: Before.Module = (await vite.ssrLoadModule(pathFile)) as never;
+            let module: ApiBefore.Module = (await vite.ssrLoadModule(pathFile)) as never;
             console.log(`${new Date().toISOString()} - Add ${file} in ${module.PATH}`);
 
             app.get(module.PATH, async (req: Request, res: Response) => {
                 try {
-                    const MainModule = (await vite.ssrLoadModule(Before.resolve("src", "_main.tsx"))).default;
+                    const MainModule = (await vite.ssrLoadModule(ApiBefore.resolve("src", "_main.tsx"))).default;
                     module = (await vite.ssrLoadModule(pathFile)) as never;
 
-                    const props = await Before.createComponentProps(req, module);
+                    const props = await ApiBefore.createComponentProps(req, module);
 
-                    const html = fs.readFileSync(Before.resolve("template.html"), "utf-8");
+                    const html = fs.readFileSync(ApiBefore.resolve("template.html"), "utf-8");
                     const Dom = parse(html);
                     const Body = Dom.querySelector("body");
                     Body.appendChild(parse(`<script type="module" src="/${cachePath}"></script>`));
 
-                    const pageRendered = await Before.render(Dom.toString(), MainModule, module, props);
+                    const pageRendered = await ApiBefore.render(Dom.toString(), MainModule, module, props);
                     return res
                         .status(200)
                         .set({ "Content-Type": "text/html" })
@@ -72,7 +72,7 @@ async function createServer() {
     const frontendExec = async (name: string) => {
         const basename = path.basename(name, ".view.tsx");
         const cachePath = path.join(".cache", "pages", `${basename}.client.tsx`);
-        const mainModulePath = Before.resolve("src", "_main.tsx");
+        const mainModulePath = ApiBefore.resolve("src", "_main.tsx");
         if (fs.existsSync(mainModulePath)) {
             write(
                 cachePath,
@@ -110,8 +110,8 @@ ReactDOM.hydrate(
     const ApiWatcher = chokidar.watch(path.join("src", "**", "*.api.ts"), { persistent: true, interval: 3000, cwd: root });
 
     const apiExec = async (name: string) => {
-        const config: Before.ApiHandler = require(Before.resolve(name)).default;
-        Before.createApiRouter(config, app);
+        const config: ApiBefore.ApiHandler = require(ApiBefore.resolve(name)).default;
+        ApiBefore.createApiRouter(config, app);
     };
 
     ApiWatcher.on("add", apiExec);

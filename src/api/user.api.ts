@@ -1,6 +1,6 @@
-import { Before } from "../before";
+import { ApiBefore } from "../before";
 
-export default Before.route("/user/:id", [
+export default ApiBefore.route("/user/:id", [
     {
         handler: (req, res) => res.send(`Hello user ${req.params.id}`),
         method: "get",

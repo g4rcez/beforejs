@@ -1,7 +1,7 @@
 import { Express, NextFunction, Request, Response } from "express";
-import parse from "node-html-parser";
-import * as Path from "path";
-import * as React from "react";
+import { parse } from "node-html-parser";
+import Path from "path";
+import React from "react";
 import { renderToString } from "react-dom/server";
 
 type Dict = Partial<Record<string, string>>;
@@ -16,6 +16,7 @@ type Props<Prefetch = any | null, Params = Dict, Query = QueryString> = {
     query: Query;
     prefetch: Prefetch;
     error: Error | null;
+    rootDir: string;
 };
 
 type DynamicHead<Prefetch = any, Params = Dict, Query = Dict> = React.FC<Props<Prefetch, Params, Query>>;
@@ -24,7 +25,7 @@ type Prefetch<Prefetch = any, Params = Dict, Query = Dict> = (props: Props<Prefe
 
 const root = process.cwd();
 
-export namespace Before {
+export namespace ApiBefore {
     export const BASE_PATH = "/";
     export type Module = {
         DynamicHead: DynamicHead;
@@ -60,6 +61,7 @@ export namespace Before {
             query: req.query as never,
             prefetch: null,
             error: null as any,
+            rootDir: ".",
         };
         if (module.prefetch) {
             try {
@@ -77,7 +79,7 @@ export namespace Before {
         config.handlers.map((route) => express[route.method](urls(basePath, "api", config.path), ...config.middlewares, route.handler));
     };
 
-    export const render = async (htmlTemplate: string, mainModule: React.FC<any>, module: Before.Module, props: Props): Promise<string> => {
+    export const render = async (htmlTemplate: string, mainModule: React.FC<any>, module: ApiBefore.Module, props: Props): Promise<string> => {
         const html = parse(htmlTemplate);
         const head = html.querySelector("head");
         if (module.DynamicHead) {

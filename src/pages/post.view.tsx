@@ -1,14 +1,14 @@
-import * as fs from "fs";
-import * as React from "react";
-import { Before } from "../before";
+import fs from "fs";
+import React from "react";
+import { Ssr } from "../before/ssr";
 
 export const PATH = "/post/:name";
 
 export const DynamicHead: Ssr.DynamicHead = (props) => <title>Welcome to ${props.host}</title>;
 
-export const prefetch: Ssr.Prefetch<{ text: string }, Before.UrlParams<typeof PATH>> = async (props) => {
+export const prefetch: Ssr.Prefetch<{ text: string }, Ssr.UrlParams<typeof PATH>> = async (props) => {
     const postName = props.params.name;
-    const text = fs.readFileSync(Before.sanitizeFilePath(process.cwd(), "posts", `${postName}.md`), "utf-8");
+    const text = fs.readFileSync(Ssr.sanitizeFilePath(props.rootDir, "posts", `${postName}.md`), "utf-8");
     return { text };
 };
 
