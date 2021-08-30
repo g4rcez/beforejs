@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Express, NextFunction, Request, Response } from "express";
 import parse from "node-html-parser";
-import Path from "path";
-import { createElement, FC } from "react";
+import * as Path from "path";
+import * as React from "react";
 import { renderToString } from "react-dom/server";
 
 type Dict = Partial<Record<string, string>>;
@@ -18,18 +18,19 @@ type Props<Prefetch = any | null, Params = Dict, Query = QueryString> = {
     error: Error | null;
 };
 
-type DynamicHead<Prefetch = any, Params = Dict, Query = Dict> = FC<Props<Prefetch, Params, Query>>;
+type DynamicHead<Prefetch = any, Params = Dict, Query = Dict> = React.FC<Props<Prefetch, Params, Query>>;
 
 type Prefetch<Prefetch = any, Params = Dict, Query = Dict> = (props: Props<Prefetch, Params, Query>) => Promise<Prefetch> | Prefetch;
 
 const root = process.cwd();
 
 export namespace Before {
+    export const BASE_PATH = "/";
     export type Module = {
         DynamicHead: DynamicHead;
         prefetch: Prefetch;
         PATH: string;
-        default: FC<any>;
+        default: React.FC<any>;
     };
     export type UrlParams<T extends string> = string extends T
         ? Record<string, string>
@@ -72,24 +73,27 @@ export namespace Before {
         return props;
     };
 
-    export const createApiRouter = (config: ApiHandler) => {
-        const router = Router();
-        config.handlers.map((route) => router[route.method](config.path, ...config.middlewares, route.handler));
-        return router;
+    export const createApiRouter = (config: ApiHandler, express: Express, basePath: string = BASE_PATH) => {
+        config.handlers.map((route) => express[route.method](urls(basePath, "api", config.path), ...config.middlewares, route.handler));
     };
 
-    export const render = async (htmlTemplate: string, mainModule: FC<any>, module: Before.Module, props: Props): Promise<string> => {
+    export const render = async (htmlTemplate: string, mainModule: React.FC<any>, module: Before.Module, props: Props): Promise<string> => {
         const html = parse(htmlTemplate);
         const head = html.querySelector("head");
         if (module.DynamicHead) {
-            head.appendChild(parse(renderToString(createElement(module.DynamicHead, props as never))));
+            head.appendChild(parse(renderToString(React.createElement(module.DynamicHead, props as never))));
         }
         const app = html.querySelector("#app");
         head.appendChild(parse(`<script id="__SERVER_SIDE_PROPS__" type="application/ld+json">${JSON.stringify(props)}</script>`));
-        app.innerHTML = renderToString(createElement(mainModule, {}, createElement(module.default, props)));
+        app.innerHTML = renderToString(React.createElement(mainModule, {}, React.createElement(module.default, props)));
         return html.toString();
     };
 
+    export const sanitizeFilePath = (...paths: string[]) => Path.resolve(Path.join(...paths.filter((x) => !(x.includes("../") || x.includes("./")))));
+
     export const join = (...paths: string[]) => Path.join(root, ...paths);
     export const resolve = (...paths: string[]) => Path.resolve(Path.join(root, ...paths));
+
+    export const urls = (baseURL: string, ...urls: string[]) =>
+        urls.reduce((acc, el) => acc.replace(/\/+$/, "") + "/" + el.replace(/^\/+/, ""), baseURL);
 }

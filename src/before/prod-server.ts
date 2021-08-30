@@ -1,23 +1,21 @@
-import express, { Request, Response, Router } from "express";
+import express, { Request, Response } from "express";
 import fs from "fs";
 import { glob } from "glob";
 import path from "path";
 import staticServer from "serve-static";
-import { Before } from "./before";
+import { Before } from ".";
 
-const createServer = async () => {
-    const app = express();
-    app.disable("x-powered-by");
+const createServer = async (basePath = Before.BASE_PATH) => {
+    const staticMiddleware = staticServer(Before.resolve("dist", "client"), {
+        etag: true,
+        index: false,
+        maxAge: 10800,
+        immutable: true,
+        lastModified: true,
+    });
 
-    app.use(
-        staticServer(Before.resolve("dist", "client"), {
-            index: false,
-            etag: true,
-            maxAge: 10800,
-            lastModified: true,
-            immutable: true,
-        })
-    );
+    const app = express().disable("x-powered-by");
+    app.use(basePath, (req, res, next) => staticMiddleware(req, res, next));
 
     const mainModule = require(Before.resolve("dist", "server", "pages", "_main.js")).Main;
 
@@ -44,13 +42,14 @@ const createServer = async () => {
 
     const loadFrontendRoutes = () =>
         new Promise((res, rej) =>
-            glob(path.join("dist", "client", "views", "**", "*.html"), (error: Error | null, files: string[]) =>
+            glob(path.join("dist", "client", "views", "**", "*.html"), (error, files) =>
                 error
                     ? rej([])
                     : res(
                           files.forEach((file) => {
                               const config = route(`${path.basename(file, ".html")}.view`, file);
-                              app.get(config.path, config.render);
+                              console.log({ path: config.path });
+                              app.get(Before.urls(basePath, config.path), config.render);
                           })
                       )
             )
@@ -58,13 +57,13 @@ const createServer = async () => {
 
     const loadApiRoutes = () =>
         new Promise((res, rej) =>
-            glob(path.join("dist", "server", "**", "*.api.js"), (error: Error | null, files: string[]) =>
+            glob(path.join("dist", "server", "**", "*.api.js"), (error, files) =>
                 error
                     ? rej([])
                     : res(
                           files.map((file) => {
                               const module: Before.ApiHandler = require(Before.resolve(file)).default;
-                              app.use("/api", Before.createApiRouter(module));
+                              Before.createApiRouter(module, app, basePath);
                           })
                       )
             )

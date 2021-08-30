@@ -1,4 +1,3 @@
-import reactRefresh from "@vitejs/plugin-react-refresh";
 import fs from "fs";
 import { basename, join } from "path";
 import { defineConfig } from "vite";
@@ -7,6 +6,7 @@ import { getHtmlFiles } from "./scripts/get-input-files";
 export default async () => {
     const inputs = await getHtmlFiles();
     return defineConfig({
+        clearScreen: false,
         resolve: {
             alias: {
                 "@api": "src/api",
@@ -14,8 +14,13 @@ export default async () => {
                 "@pages": "src/pages",
             },
         },
+        mode: process.env.NODE_ENV ?? "development",
         plugins: [],
         json: { stringify: true },
+        server: {
+            middlewareMode: "ssr",
+            fs: { strict: true, allow: [] },
+        },
         build: {
             outDir: "dist/client",
             minify: "terser",
@@ -27,9 +32,12 @@ export default async () => {
             cssCodeSplit: false,
             sourcemap: false,
             terserOptions: {
+                keep_classnames: true,
+                sourceMap: false,
                 compress: true,
                 ie8: false,
                 safari10: false,
+                keep_fnames: true,
                 format: {
                     ascii_only: false,
                     beautify: false,
@@ -41,7 +49,10 @@ export default async () => {
             },
             rollupOptions: {
                 input: inputs,
+                treeshake: true,
+                shimMissingExports: true,
                 output: {
+                    interop: "esModule",
                     assetFileNames: "assets/[name][extname]",
                     entryFileNames: (a) => (a.name.endsWith(".js") ? a.name : "[name].js"),
                     chunkFileNames: (a) => (a.name.endsWith(".js") ? a.name : "[name].js"),
@@ -49,13 +60,10 @@ export default async () => {
                     sourcemap: false,
                     strict: true,
                     manualChunks(id) {
-                        if (id.endsWith("html")) {
-                            return `${basename(id)}`;
-                        }
                         if (id.endsWith("src/_main.tsx")) {
                             return `pages/_main`;
                         }
-                        if (id.endsWith("view.tsx")) return `pages/${basename(id.toLowerCase()).replace(/\.tsx/, "")}`;
+                        if (id.endsWith("client.tsx") || id.endsWith("view.tsx")) return `pages/${basename(id.toLowerCase()).replace(/\.tsx/, "")}`;
                         if (id.includes("node_modules")) {
                             const module = /node_modules\/(@?[a-z0-9-]+?[a-z0-9-]+)/.exec(id)?.[1]!;
                             const path = join(process.cwd(), "node_modules", module, "package.json");

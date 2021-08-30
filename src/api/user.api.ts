@@ -1,4 +1,4 @@
-import { Before } from "../before/before";
+import { Before } from "../before";
 
 export default Before.route("/user/:id", [
     {

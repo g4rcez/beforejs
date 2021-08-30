@@ -22,12 +22,12 @@ export declare global {
             : {};
     }
     export declare namespace Ssr {
-        export type Props<Prefetch = any | null, Params = StringObject, Query = StringObject> = {
+        export type Props<T = any | null, Params = StringObject, Query = StringObject> = {
             url: string;
             host: string;
             params: Params;
             query: Query;
-            prefetch: Prefetch;
+            prefetch: T;
         };
 
         export type Prefetch<Prefetch = any, Params = StringObject, Query = StringObject> = (

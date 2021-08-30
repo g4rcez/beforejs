@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import "./App.css";
-import logo from "./logo.svg";
+import * as React from "react";
+import logo from "../logo.svg";
+import "../App.css";
 
 export const PATH = "/";
 
@@ -13,7 +13,7 @@ export const prefetch: Ssr.Prefetch = async () => ({
 export default function App(props: Ssr.Props) {
     const [count, setCount] = React.useState(props.prefetch.count);
 
-    useEffect(() => console.log("First Render", props), []);
+    React.useEffect(() => console.log("First Render", props), []);
 
     return (
         <header className="App-header rounded-lg text-center h-full">

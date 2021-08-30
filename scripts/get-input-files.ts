@@ -36,7 +36,7 @@ export const getSsrFiles = async () => {
     return {
         ...apis,
         ...base,
-        before: path.resolve(path.join(root, "src", "before", "before.ts")),
+        __before: path.resolve(path.join(root, "src", "before", "index.ts")),
         __server: path.resolve(path.join(root, "src", "before", "prod-server.ts")),
     };
 };
@@ -85,5 +85,5 @@ export const getHtmlFiles = async () => {
             );
             return htmlFile;
         })
-        .reduce((acc, el) => ({ ...acc, [path.basename(el, ".html")]: el }), {});
+        .reduce((acc, el) => ({ ...acc, [`${path.basename(el, ".html")}`]: path.resolve(el) }), {});
 };
