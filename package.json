@@ -15,6 +15,7 @@
     "@types/node": "16.7.4",
     "antd": "^4.16.13",
     "axios": "0.21.1",
+    "compression": "1.7.4",
     "express": "^4.17.1",
     "fast-json-stringify": "2.7.9",
     "find-my-way": "4.3.3",
@@ -24,6 +25,7 @@
     "react-dom": "^17.0.0"
   },
   "devDependencies": {
+    "@types/compression": "1.7.2",
     "@types/glob": "7.1.4",
     "@types/html-minifier": "4.0.1",
     "@types/json-server": "0.14.4",

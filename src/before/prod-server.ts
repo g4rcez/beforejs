@@ -4,6 +4,7 @@ import { glob } from "glob";
 import path from "path";
 import staticServer from "serve-static";
 import { ApiBefore } from ".";
+import Compression from "compression";
 
 const createServer = async (basePath = ApiBefore.BASE_PATH) => {
     const staticMiddleware = staticServer(ApiBefore.resolve("dist", "client"), {
@@ -14,7 +15,9 @@ const createServer = async (basePath = ApiBefore.BASE_PATH) => {
         lastModified: true,
     });
 
-    const app = express().disable("x-powered-by");
+    const app = express()
+        .disable("x-powered-by")
+        .use(Compression({ level: 6 }));
     app.use(basePath, (req, res, next) => staticMiddleware(req, res, next));
 
     const mainModule = require(ApiBefore.resolve("dist", "server", "pages", "_main.js")).Main;

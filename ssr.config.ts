@@ -1,9 +1,11 @@
 import fs from "fs";
 import path from "path";
-import { build, Terser } from "vite";
+import { build } from "vite";
 import { getSsrFiles, root } from "./scripts/get-input-files";
+import { init } from "./scripts/pre-init";
 
 (async () => {
+    await init()
     await build({
         plugins: [],
         server: {

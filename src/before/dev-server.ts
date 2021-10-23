@@ -5,12 +5,14 @@ import { parse } from "node-html-parser";
 import path from "path";
 import * as ViteJS from "vite";
 import { ApiBefore } from ".";
+import { init } from "../../scripts/pre-init";
 
 const root = process.cwd();
 
 const write = (path: string, data: string) => fs.writeFileSync(path, data, { encoding: "utf-8" });
 
 async function createServer() {
+    await init();
     const vite = await ViteJS.createServer({
         root,
         plugins: [],
@@ -121,8 +123,12 @@ ReactDOM.hydrate(
 }
 
 (async () => {
-    const server = await createServer();
-    const port = 3000;
-    const controller = server.listen(port, () => console.log(`Running :${port}`));
-    process.on("unhandledRejection", () => controller.close()).on("uncaughtException", (err) => controller.close());
+    try {
+        const server = await createServer();
+        const port = 3000;
+        const controller = server.listen(port, () => console.log(`Running :${port}`));
+        process.on("unhandledRejection", () => controller.close()).on("uncaughtException", (err) => controller.close());
+    } catch (error) {
+        console.error(error);
+    }
 })();

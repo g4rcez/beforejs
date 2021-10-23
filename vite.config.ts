@@ -1,10 +1,14 @@
+import { babel } from "@rollup/plugin-babel";
+import commonjs from "@rollup/plugin-commonjs";
 import fs from "fs";
 import { basename, join } from "path";
 import { defineConfig } from "vite";
 import { getHtmlFiles } from "./scripts/get-input-files";
+import { init } from "./scripts/pre-init";
 
 export default async () => {
     const inputs = await getHtmlFiles();
+    await init();
     return defineConfig({
         clearScreen: false,
         resolve: {
@@ -15,7 +19,7 @@ export default async () => {
             },
         },
         mode: process.env.NODE_ENV ?? "development",
-        plugins: [],
+        plugins: [commonjs(), babel({ babelHelpers: "bundled" })],
         build: {
             outDir: "dist/client",
             manifest: false,
