@@ -2,14 +2,17 @@ import React from "react";
 import logo from "../logo.svg";
 import "../App.css";
 import { Ssr } from "../before/ssr";
+import { ApiBefore } from "../before";
+
+export const config: ApiBefore.Config = {
+    DynamicHead: (props) => <title>Welcome to {props.host}</title>,
+    prefetch: async () => {
+        return { count: 100 };
+    },
+};
 
 export const PATH = "/";
 
-export const DynamicHead: Ssr.DynamicHead = (props) => <title>Welcome to ${props.host}</title>;
-
-export const prefetch: Ssr.Prefetch = async () => ({
-    count: 100,
-});
 
 export default function App(props: Ssr.Props) {
     const [count, setCount] = React.useState(props.prefetch.count);

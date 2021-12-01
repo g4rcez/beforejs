@@ -21,16 +21,19 @@ type Props<Prefetch = any | null, Params = Dict, Query = QueryString> = {
 
 type DynamicHead<Prefetch = any, Params = Dict, Query = Dict> = React.FC<Props<Prefetch, Params, Query>>;
 
-type Prefetch<Prefetch = any, Params = Dict, Query = Dict> = (props: Props<Prefetch, Params, Query>) => Promise<Prefetch> | Prefetch;
+type Loader<Prefetch = any, Params = Dict, Query = Dict> = (props: Props<Prefetch, Params, Query>) => Promise<Prefetch> | Prefetch;
 
 const root = process.cwd();
 
 export namespace ApiBefore {
     export const BASE_PATH = "/";
+    export type Config<Prefetch = any, Params = Dict, Query = Dict> = Partial<{
+        DynamicHead: DynamicHead<Prefetch, Params, Query>;
+        prefetch: Loader<Prefetch, Params, Query>;
+    }>;
     export type Module = {
-        DynamicHead: DynamicHead;
-        prefetch: Prefetch;
         PATH: string;
+        config: Config;
         default: React.FC<any>;
     };
     export type UrlParams<T extends string> = string extends T
@@ -63,9 +66,9 @@ export namespace ApiBefore {
             error: null as any,
             rootDir: ".",
         };
-        if (module.prefetch) {
+        if (module.config.prefetch) {
             try {
-                const response: Prefetch = await module.prefetch(props as never);
+                const response: Loader = await module.config.prefetch(props as never);
                 props.prefetch = response;
             } catch (error) {
                 console.error(error);
@@ -82,8 +85,8 @@ export namespace ApiBefore {
     export const render = async (htmlTemplate: string, mainModule: React.FC<any>, module: ApiBefore.Module, props: Props): Promise<string> => {
         const html = parse(htmlTemplate);
         const head = html.querySelector("head");
-        if (module.DynamicHead) {
-            head.appendChild(parse(renderToString(React.createElement(module.DynamicHead, props as never))));
+        if (module.config.DynamicHead) {
+            head.appendChild(parse(renderToString(React.createElement(module.config.DynamicHead, props as never))));
         }
         const app = html.querySelector("#app");
         head.appendChild(parse(`<script id="__SERVER_SIDE_PROPS__" type="application/ld+json">${JSON.stringify(props)}</script>`));

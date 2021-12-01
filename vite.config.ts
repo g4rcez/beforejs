@@ -19,7 +19,8 @@ export default async () => {
             },
         },
         mode: process.env.NODE_ENV ?? "development",
-        plugins: [commonjs(), babel({ babelHelpers: "bundled" })],
+        plugins: [],
+        // plugins: [commonjs(), babel({ babelHelpers: "bundled" })],
         build: {
             outDir: "dist/client",
             manifest: false,
